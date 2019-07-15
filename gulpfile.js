@@ -8,7 +8,8 @@ var settings = {
 	scripts: true,
 	polyfills: true,
 	styles: true,
-	svgs: true,
+    svgs: true,
+    imgs: true,
 	copy: true,
 	reload: true
 };
@@ -33,7 +34,11 @@ var paths = {
 	svgs: {
 		input: 'src/svg/*.svg',
 		output: 'dist/svg/'
-	},
+    },
+    imgs: {
+        input: 'src/img/*.{jpg,png}',
+        output: 'dist/img'
+    },
 	copy: {
 		input: 'src/copy/**/*',
 		output: 'dist/'
@@ -92,6 +97,9 @@ var minify = require('gulp-cssnano');
 
 // SVGs
 var svgmin = require('gulp-svgmin');
+
+//IMGs
+var smushit = require('gulp-smushit');
 
 // BrowserSync
 var browserSync = require('browser-sync');
@@ -230,6 +238,18 @@ var buildSVGs = function (done) {
 
 };
 
+var optimizeImgs = function (done) {
+
+	// Make sure this feature is activated before running
+	if (!settings.imgs) return done();
+
+	// Optimize JPG, PNG files
+	return src(paths.imgs.input)
+		.pipe(smushit())
+		.pipe(dest(paths.imgs.output));
+
+};
+
 // Copy static files into output folder
 var copyFiles = function (done) {
 
@@ -286,7 +306,8 @@ exports.default = series(
 		buildScripts,
 		lintScripts,
 		buildStyles,
-		buildSVGs,
+        buildSVGs,
+        optimizeImgs,
 		copyFiles
 	)
 );
